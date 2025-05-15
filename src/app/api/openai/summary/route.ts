@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${openaiApiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o', // ✅ FIXED MODEL NAME
+        model: 'gpt-4o',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 60,
       }),
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     if (!openaiRes.ok) {
       const errorText = await openaiRes.text();
-      console.error('OpenAI API error:', errorText); // 🔍 Debugging help
+      console.error('OpenAI API error:', errorText);
       return NextResponse.json({ error: 'OpenAI request failed' }, { status: 500 });
     }
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ summary });
 
   } catch (error) {
-    console.error('Server error:', error); // 🔍 More detailed error logging
+    console.error('Server error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
