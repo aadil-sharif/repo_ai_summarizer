@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { Text } from "@chakra-ui/react";
 import {
   Box,
   Button,
@@ -13,6 +12,7 @@ import {
   List,
   ListItem,
   Spinner,
+  Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -22,11 +22,6 @@ type Repo = {
   id: number;
   name: string;
   full_name: string;
-};
-
-type FileContent = {
-  content: string; // base64 encoded content from GitHub
-  sha: string; // needed for updating files
 };
 
 export default function Page() {
@@ -53,7 +48,6 @@ export default function Page() {
   async function fetchRepos() {
     setLoadingRepos(true);
     try {
-      // Use GitHub API to get user repos
       const res = await axios.get("https://api.github.com/user/repos", {
         headers: {
           Authorization: `token ${(session as any).accessToken}`,
@@ -67,27 +61,43 @@ export default function Page() {
     setLoadingRepos(false);
   }
 
-  async function fetchFiles(repoFullName: string) {
-    setLoadingFiles(true);
+  async function fetchFilesRecursive(
+    repoFullName: string,
+    path = ""
+  ): Promise<string[]> {
     try {
-      // Get root directory contents
       const res = await axios.get(
-        `https://api.github.com/repos/${repoFullName}/contents/`,
+        `https://api.github.com/repos/${repoFullName}/contents/${path}`,
         {
           headers: {
             Authorization: `token ${(session as any).accessToken}`,
           },
         }
       );
-      // Filter files only (skip folders)
-      const onlyFiles = res.data
-        .filter((f: any) => f.type === "file")
-        .map((f: any) => f.name);
-      setFiles(onlyFiles);
+
+      const entries: any[] = res.data;
+      let allFiles: string[] = [];
+
+      for (const entry of entries) {
+        if (entry.type === "file") {
+          allFiles.push(entry.path);
+        } else if (entry.type === "dir") {
+          const nested = await fetchFilesRecursive(repoFullName, entry.path);
+          allFiles = allFiles.concat(nested);
+        }
+      }
+
+      return allFiles;
     } catch (error) {
-      alert("Error loading files. Check console.");
-      console.error(error);
+      console.error("Error fetching files recursively:", error);
+      return [];
     }
+  }
+
+  async function fetchFiles(repoFullName: string) {
+    setLoadingFiles(true);
+    const allFiles = await fetchFilesRecursive(repoFullName);
+    setFiles(allFiles);
     setLoadingFiles(false);
   }
 
@@ -127,7 +137,6 @@ export default function Page() {
         }
       );
       alert("File saved successfully!");
-      // refetch content to get new sha
       await fetchFileContent(selectedRepo.full_name, selectedFile);
     } catch (error) {
       alert("Error saving file. Check console.");
@@ -198,20 +207,20 @@ export default function Page() {
           {loadingFiles ? (
             <Spinner />
           ) : files.length === 0 ? (
-            <Text>No files found in repo root.</Text>
+            <Text>No files found in repository.</Text>
           ) : (
             <List spacing={2}>
-              {files.map((file) => (
+              {files.map((filePath) => (
                 <ListItem
-                  key={file}
+                  key={filePath}
                   cursor="pointer"
                   color="green.500"
                   onClick={() => {
-                    setSelectedFile(file);
-                    fetchFileContent(selectedRepo.full_name, file);
+                    setSelectedFile(filePath);
+                    fetchFileContent(selectedRepo.full_name, filePath);
                   }}
                 >
-                  {file}
+                  {filePath}
                 </ListItem>
               ))}
             </List>
