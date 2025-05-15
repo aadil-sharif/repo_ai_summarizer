@@ -1,7 +1,9 @@
-"use client";
+// src/lib/auth-provider.ts
+
+"use client"; // This component must be client-side
 
 import { SessionProvider } from "next-auth/react";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 interface AuthProviderProps {
   children: ReactNode;

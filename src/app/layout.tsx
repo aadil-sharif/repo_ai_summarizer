@@ -1,18 +1,14 @@
-import { Providers } from "./providers";
+import { ReactNode } from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+import { AuthProvider } from "@/lib/auth-provider";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <title>AI Dev Showcase</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
       <body>
-        <Providers>{children}</Providers>
+        <AuthProvider>
+          <ChakraProvider>{children}</ChakraProvider>
+        </AuthProvider>
       </body>
     </html>
   );
