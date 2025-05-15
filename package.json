@@ -13,15 +13,16 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@monaco-editor/react": "^4.7.0",
     "axios": "^1.9.0",
     "framer-motion": "^12.11.4",
     "next": "^13.4.10",
     "next-auth": "^4.24.11",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.5.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20.3.1",
     "@types/react": "^18.0.38",
